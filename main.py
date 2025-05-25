@@ -21,7 +21,7 @@ class TaskCreationWindow(QWidget):
     def __init__(self, parent: QMainWindow=None):
         super().__init__()
         self.parent_window = parent  # Сохраняем ссылку на родительское окно
-        self.setMinimumSize(500, 400)
+        self.setMinimumSize(400, 300)
         self._create_menu_bar()
         self.setWindowTitle(parent.windowTitle())
 
@@ -97,7 +97,7 @@ class TaskSolveWindow(QWidget):
     def __init__(self, parent: QMainWindow=None):
         super().__init__()
         self.parent_window = parent  # Сохраняем ссылку на родительское окно
-        self.setMinimumSize(500, 400)
+        self.setMinimumSize(400, 300)
         self._create_menu_bar()
         self.setWindowTitle(parent.windowTitle())
 
@@ -230,7 +230,7 @@ class MainMenu(QMainWindow):
         
         # Подпись об авторстве
         author_label = QLabel("Авторы: Сабалиров М.З., Беннер В.А.")
-        author_label.setFont(QFont("Arial", 8))
+        author_label.setFont(QFont("Arial", 9))
         author_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         layout.addWidget(author_label)
 
@@ -301,7 +301,7 @@ class MainMenu(QMainWindow):
 
     def show_about(self):
         md = """**Название тренажера**: CTasks  
-**Версия**: 1.0  
+**Версия**: 1.1  
 **Разработчики**: Сабалиров М.З., Беннер В.А.  
 **Руководитель**: Поздняков С.Н.
 

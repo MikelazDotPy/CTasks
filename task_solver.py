@@ -50,6 +50,14 @@ class TaskSolver(QWidget):
         self.tasks = []
         self.user_data = []
         self.user_data_path = resource_path(os.path.join("user", "data.json"))
+        self.label.setText("""В ответе могут присутствовать:
+    1. Числа
+    2. Формулы: C(n,k) — сочетания, A(n,k) — размещения, F(n) — факториал
+    3. Операторы: +, -, *, /, **
+        оператор / означает целочисленное деление
+        оператор ** означает возведение в степнь
+ 
+Если задача противоречива, ответ 0.""") 
         self._post_init()
 
     def _setup_menu_bar(self):
@@ -81,6 +89,8 @@ class TaskSolver(QWidget):
             if not isinstance(data, list):
                 data = []
             
+            if new_item in data:
+                return
             data.append(new_item)
             
             with open(file_path, 'w', encoding='utf-8') as f:
@@ -139,7 +149,8 @@ class TaskSolver(QWidget):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_F5:
             self._load_tasks_name()
-
+        if event.key() == Qt.Key.Key_Return:
+            self._check_sol()
         super().keyPressEvent(event)
     
     def _check_sol(self):
@@ -155,8 +166,10 @@ class TaskSolver(QWidget):
         if ans == self.curr_task["answer"]:
             dlg = CustomDialog("Ответ верный!", title="Успех!", parent=self)
             dlg.exec()
-
+            
             self.append_to_json_list(self.user_data_path, self.curr_task["name"])
+            if self.curr_task["name"] not in self.user_data:
+                self.user_data.append(self.curr_task["name"])
             it = self.listWidget.findItems(self.curr_task["name"], Qt.MatchFlag.MatchExactly)[0]
             it.setBackground(QColor(GOOD_COLOR))
             self.textBrowser.append(f"[{datetime.now().strftime("%d.%m.%Y %H:%M")}]: Задача '{self.curr_task["name"]}' решена. Ответ: {self.lineEdit.text()}")
@@ -179,7 +192,7 @@ class TaskSolver(QWidget):
 
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(885, 581)
+        Form.resize(900, 600)
 
         # Add menu bar at the top
         self.menu_bar = QtWidgets.QMenuBar(Form)
@@ -213,11 +226,16 @@ class TaskSolver(QWidget):
         self.textBrowser_2.setObjectName("textBrowser_2")
         self.verticalLayout.addWidget(self.textBrowser_2)
         self.verticalLayout_3.addLayout(self.verticalLayout)
+        
         self.label = QtWidgets.QLabel(parent=Form)
         self.label.setMinimumSize(QtCore.QSize(0, 100))
         self.label.setText("")
         self.label.setObjectName("label")
-        self.verticalLayout_3.addWidget(self.label)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignTop)
+        scroll = QtWidgets.QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(self.label)
+        self.verticalLayout_3.addWidget(scroll)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.lineEdit = QtWidgets.QLineEdit(parent=Form)

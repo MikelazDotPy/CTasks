@@ -52,15 +52,11 @@ def get_formula(conds: Conditions, n, N):
     if conds.alternation:
         return lambda v, c: 1 if v != c else 2
 
-    if conds.palindrome:
+    if conds.palindrome and N % 2 == 0:
         if conds.alternation_s_g:
-            if N % 2 == 0:
-                return lambda v, c: comb(v - 1, c)
-            return lambda v, c: comb(v, c)
+            return lambda v, c: comb(v - 1, c)
         if conds.alternation_g_s:
-            if N % 2 == 0:
-                return lambda v, c: comb(v - 1, c)
-            return lambda v, c: comb(v, c)
+            return lambda v, c: comb(c - 1, v)
 
     if conds.alternation_s_g:
         return lambda v, c: comb(v, c)

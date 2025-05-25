@@ -222,7 +222,7 @@ class WordEditor(QWidget):
 
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(1034, 612)
+        Form.resize(1000, 600)
 
         self.mainLayout = QtWidgets.QVBoxLayout(Form)
         self.mainLayout.setObjectName("mainLayout")
@@ -446,7 +446,7 @@ class WordEditor(QWidget):
         * **Палиндром** — это слово, фраза, число или другая последовательность символов, которая читается **одинаково** как **слева направо**, так и **справа налево**.  
         * В строке “Алфавит” вы можете с клавиатуры ввести желаемый алфавит (например: абв или а, б, в, оба варианта дадут алфавит {А, Б, В})  
         * Галочка “Только уникальные буквы” превратит набор {МАТЕМАТИКА} в {МАТЕИК}, то есть уберет все повторяющиеся буквы.  
-        * При выборе алфавита с повторяющимися буквами, подсчет слов будет с учетом того, что все буквы разные. То есть слова МАТЕМАТИКА и МАТЕМАТИКА будут считаться разными.  
+        * При выборе алфавита с повторяющимися буквами, подсчет слов будет с учетом того, что все буквы разные. То есть слова МАТЕМАтИКА и МАтЕМАТИКА будут считаться разными.  
     * Удаление условия: двойной клик по нему.  
 * **Условие задачи**   
     * Генерируется при нажатии на “Сгенерировать условие”.
@@ -686,7 +686,7 @@ class CardDeckEditor(QWidget):
 
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(1300, 621)
+        Form.resize(1200, 600)
 
         self.mainLayout = QtWidgets.QVBoxLayout(Form)
         self.mainLayout.setObjectName("mainLayout")
@@ -1140,7 +1140,7 @@ class NumberEditor(QWidget):
 
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(1034, 612)
+        Form.resize(1200, 600)
 
         self.mainLayout = QtWidgets.QVBoxLayout(Form)
         self.mainLayout.setObjectName("mainLayout")
