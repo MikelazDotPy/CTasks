@@ -1,15 +1,22 @@
 
 import os
+import sys
 
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QPushButton, QLabel, QFrame, QSizePolicy, QStyleFactory,
                              QMessageBox, QScrollArea, QMenuBar)
 from markdown import markdown
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont, QAction
+from PyQt6.QtGui import QFont, QAction, QIcon
 
 from task_solver import TaskSolver
 from tasks_creator import CardDeckEditor, WordEditor, NumberEditor
+
+
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 
 def fix_gtk_settings():
@@ -324,6 +331,7 @@ class MainMenu(QMainWindow):
 if __name__ == "__main__":
     fix_gtk_settings()
     app = QApplication([])
+    app.setWindowIcon(QIcon(resource_path("ico.ico")))
     app.setStyle(QStyleFactory.create("Fusion"))
     window = MainMenu()
     window.show()

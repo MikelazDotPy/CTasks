@@ -4,12 +4,13 @@
 Авторы: Сабалиров М.З, Беннер В.А.
 
 ## Быстрый старт (готовое приложение, без исходников)
-1. Скачайте актуальный [релиз](https://github.com/MikelazDotPy/CTasks/releases/tag/v1.1)
-2. Распакуйте архив с названием:
-    - Windows: CTasksWindows
-    - Linux: CTasksLinux
-    - MacOS: CTasksMacOS
-3. Зайдите в распакованную папку и запустите файлы CTasks
+1. Откройте актуальный [релиз](https://github.com/MikelazDotPy/CTasks/releases/tag/v1.1)
+2. Нажмите на архив с **названием (вашей ОС)**:
+    - Windows: `CTasksWindows.zip`
+    - Linux: `CTasksLinux.zip`
+    - MacOS: `CTasksMacOS.zip`
+3. Архив должен начать скачиваться
+4. Распакуйте архив и запустите файл `CTasks`
 
 ## Запуск тренажера из исходников
 1. Склонируйте репозиторий: `git clone https://github.com/MikelazDotPy/CTasks.git`

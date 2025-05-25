@@ -232,6 +232,7 @@ class TaskSolver(QWidget):
         self.label.setText("")
         self.label.setObjectName("label")
         self.label.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.label.setWordWrap(True)
         scroll = QtWidgets.QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setWidget(self.label)
