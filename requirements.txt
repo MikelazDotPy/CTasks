@@ -1,0 +1,14 @@
+absl-py==2.2.2
+immutabledict==4.2.1
+Markdown==3.8
+numpy==2.2.6
+ortools==9.12.4544
+pandas==2.2.3
+protobuf==5.29.4
+PyQt6==6.9.0
+PyQt6-Qt6==6.9.0
+PyQt6_sip==13.10.2
+python-dateutil==2.9.0.post0
+pytz==2025.2
+six==1.17.0
+tzdata==2025.2
