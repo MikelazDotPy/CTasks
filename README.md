@@ -1,5 +1,5 @@
-# CTasks
-Тренажер по комбинаторике
+# CTasks -- тренажер по комбинаторике
+CTasks позволяет как решать задания по комбинаторе, так и создавать собсветвенные задачи при помощи встроенные редакторов задач
 
 Авторы: Сабалиров М.З, Беннер В.А.
 
@@ -24,3 +24,9 @@
 5. Запустите `main.py`:
     - Windows: `python main.py`
     - Linux/MacOS: `python3 main.py`
+
+## Сборка приложения из исходников
+1. Установите pyinstaller: `pip install pyinstaller`
+2. Начните сборку: `pyinstaller --add-data "solvers:solvers" --add-data "tasks:tasks" --add-data "user:user" --icon=ico.ico  --name=CTasks --collect-all ortools --collect-all PyQt6 --windowed --add-data "parse_expr.py:." --add-data "task_solver.py:." --add-data "tasks_creator.py:." --add-data "ico.ico:." --onedir main.py`
+3. После завещения сборки передейдите в директорию `dist/CTasks`
+4. Запустите исполняемый файл `CTasks` 
