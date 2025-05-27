@@ -1,80 +1,60 @@
+from datetime import datetime
+from math import comb, perm, factorial
 import json
 import os
-import sys
 
-from PyQt6 import QtCore
-from PyQt6 import QtWidgets
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QAction, QColor
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PyQt6.QtGui import QColor
 
-from datetime import datetime
-from parse_expr import parse_expr
+from ui import CustomDialog, TasksSolverUI, resource_path
 
 
-def resource_path(relative_path):
-    if hasattr(sys, '_MEIPASS'):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
+def parse_expr(expr):
+    expr = expr.replace("/", "//")
+    return eval(expr, {'C': comb, 'A': perm, 'F': factorial, 'С': comb, 'А': perm}, {})
 
 
 GOOD_COLOR = "#1f8300"
 
-class CustomDialog(QtWidgets.QDialog):
-    def __init__(self, text, title="Ошибка!", parent=None):
+class TaskSolver(TasksSolverUI):
+    def __init__(self, parent):
         super().__init__(parent)
-
-        self.setWindowTitle(title)
-
-        QBtn = (
-            QtWidgets.QDialogButtonBox.StandardButton.Ok
-        )
-    
-        self.buttonBox = QtWidgets.QDialogButtonBox(QBtn)
-        self.buttonBox.accepted.connect(self.accept)
-        layout = QVBoxLayout()
-        message = QLabel(text)
-        layout.addWidget(message, alignment=Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.buttonBox, alignment=Qt.AlignmentFlag.AlignCenter)
-        self.setLayout(layout)
-        self.resize(200, 100)
-
-
-class TaskSolver(QWidget):
-    def __init__(self, parent, task_type):
-        super().__init__()
-        self.setupUi(self)
-        self.parent = parent
-        self.task_type = task_type
-        self.curr_task = None
-        self.tasks = []
         self.user_data = []
         self.user_data_path = resource_path(os.path.join("user", "data.json"))
-        self.label.setText("""В ответе могут присутствовать:
-    1. Числа
-    2. Формулы: C(n,k) — сочетания, A(n,k) — размещения, F(n) — факториал
-    3. Операторы: +, -, *, /, **
-        оператор / означает целочисленное деление
-        оператор ** означает возведение в степнь
- 
-Если задача противоречива, ответ 0.""") 
+        self.curr_task = None
+        self.curr_proto = None
+        self.tasks = []
+        self.protos = []
+        self.special_protypes = {
+            "Карты": "card",
+            "Слова": "word",
+            "Числа": "num",
+            "Другое": "Задачи без прототипа"
+        }
         self._post_init()
 
-    def _setup_menu_bar(self):
-        # Создаем QMenuBar
-        self.menu_bar = QtWidgets.QMenuBar(self)
-        self.menu_bar.setNativeMenuBar(False)
-        back_action = QAction("Назад", self)
-        back_action.triggered.connect(self.back_to_menu)
-        self.menu_bar.addAction(back_action)
-        
-        # Добавляем менюбар в layout
-        self.horizontalLayout.insertWidget(0, self.menu_bar)
+    def _post_init(self):
+        self._load_prototypes_name()
+        self.listWidget.itemDoubleClicked.connect(self._load_tasks_name)
+        self.listWidget_2.itemDoubleClicked.connect(self._load_task)
 
-    def back_to_menu(self):
-        if self.parent:
-            self.parent.show()
-        self.close()
+    def _load_prototypes_name(self):
+        self.protos = []
+        self.listWidget.clear()
+        for filename in os.listdir(resource_path("prototypes")):
+            if filename.endswith(".json"):
+                filepath = resource_path(os.path.join("prototypes", filename))
+                try:
+                    with open(filepath, "r", encoding="utf-8") as file:
+                        data = json.load(file)
+                        self.tasks.append(data)
+                except:
+                    pass
+        self.listWidget.addItems(list(self.special_protypes.keys())[:-1])
+        self.listWidget.addItems(sorted(task["name"] for task in self.tasks if task["name"] != "Задачи без прототипа"))
+        self.listWidget.addItems(["Другое"])
+        #self.listWidget.sortItems()
+        #self.listWidget.addItems(self.special_protypes.keys())
 
     def create_empty_json(self, file_path):
         if not resource_path(os.path.join("user", "data.json")):
@@ -100,23 +80,27 @@ class TaskSolver(QWidget):
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump([new_item], f, ensure_ascii=False, indent=4)
 
-    def _load_tasks_name(self):
+    def _load_tasks_name(self, task_type):
+        if type(task_type) != str:
+            task_type = task_type.text()
+        self.curr_proto = task_type
+        if task_type in self.special_protypes:
+            task_type = self.special_protypes[task_type]
+
         self.tasks = []
-        self.listWidget.clear()
+        self.listWidget_2.clear()
         for filename in os.listdir(resource_path("tasks")):
-            if filename.endswith(".json"):  # Проверяем расширение .json
-                filepath = resource_path(os.path.join("tasks", filename))  # Полный путь к файлу
-                
-                # Читаем и парсим JSON
+            if filename.endswith(".json"):
+                filepath = resource_path(os.path.join("tasks", filename))
                 try:
                     with open(filepath, "r", encoding="utf-8") as file:
-                        data = json.load(file)  # Загружаем JSON в словарь/список
-                        if data["type"] == self.task_type:
+                        data = json.load(file)
+                        if data["type"] == task_type:
                             self.tasks.append(data)
                 except:
                     pass
-        self.listWidget.addItems(task["name"] for task in self.tasks)
-        self.listWidget.sortItems()
+        self.listWidget_2.addItems(task["name"] for task in self.tasks)
+        self.listWidget_2.sortItems()
         try:
             file_path = self.user_data_path
             
@@ -137,24 +121,37 @@ class TaskSolver(QWidget):
             self.create_empty_json(file_path)
             self.user_data = []
 
-        for i in range(self.listWidget.count()):
-            if self.listWidget.item(i).text() in self.user_data:
-                self.listWidget.item(i).setBackground(QColor(GOOD_COLOR))
+        for i in range(self.listWidget_2.count()):
+            if self.listWidget_2.item(i).text() in self.user_data:
+                self.listWidget_2.item(i).setBackground(QColor(GOOD_COLOR))
+        
+        if self.listWidget_2.count() == 0:
+            dlg = CustomDialog("Этот сборник, пока пуст", "", self)
+            dlg.exec()
 
-    def _post_init(self):
-        self._load_tasks_name()
-        self.listWidget.itemDoubleClicked.connect(self._load_task)
-        self.pushButton.clicked.connect(self._check_sol)
-
+    def _load_task(self, value):
+        value = value.text()
+        for task in self.tasks:
+            if task["name"] == str(value):
+                self.textBrowser_2.setText(task["task"])
+                self.lineEdit.setText("")
+                self.textBrowser.append(f"[{datetime.now().strftime("%H:%M")}]: Начато решение задачи '{task["name"]}'")
+                self.curr_task = task
+                break
+    
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_F5:
-            self._load_tasks_name()
+            self._load_prototypes_name()
+            if self.curr_proto is not None:
+                self._load_tasks_name(self.curr_proto["type"])
         if event.key() == Qt.Key.Key_Return:
             self._check_sol()
         super().keyPressEvent(event)
     
     def _check_sol(self):
         if self.curr_task is None:
+            dlg = CustomDialog("Выберите задачу!", parent=self)
+            dlg.exec()
             return
         
         try:
@@ -170,94 +167,10 @@ class TaskSolver(QWidget):
             self.append_to_json_list(self.user_data_path, self.curr_task["name"])
             if self.curr_task["name"] not in self.user_data:
                 self.user_data.append(self.curr_task["name"])
-            it = self.listWidget.findItems(self.curr_task["name"], Qt.MatchFlag.MatchExactly)[0]
+            it = self.listWidget_2.findItems(self.curr_task["name"], Qt.MatchFlag.MatchExactly)[0]
             it.setBackground(QColor(GOOD_COLOR))
-            self.textBrowser.append(f"[{datetime.now().strftime("%d.%m.%Y %H:%M")}]: Задача '{self.curr_task["name"]}' решена. Ответ: {self.lineEdit.text()}")
+            self.textBrowser.append(f"[{datetime.now().strftime("%H:%M")}]: Задача '{self.curr_task["name"]}' решена. Ответ: {self.lineEdit.text()}")
         else:
             dlg = CustomDialog("Неверный ответ!", title="Неудача!", parent=self)
             dlg.exec()
-            self.textBrowser.append(f"[{datetime.now().strftime("%d.%m.%Y %H:%M")}]: Задача '{self.curr_task["name"]}' дан неправильный ответ. Ответ: {self.lineEdit.text()}")
-
-    def _load_task(self, value: QtWidgets.QListWidgetItem):
-        value = value.text()
-        for task in self.tasks:
-            if task["name"] == str(value):
-                self.textBrowser_2.setText(task["task"])
-                self.lineEdit.setText("")
-                self.textBrowser.append(f"[{datetime.now().strftime("%d.%m.%Y %H:%M")}]: Начато решение задачи '{task["name"]}'")
-                self.curr_task = task
-                break
-        
-        
-
-    def setupUi(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(900, 600)
-
-        # Add menu bar at the top
-        self.menu_bar = QtWidgets.QMenuBar(Form)
-        self.menu_bar.setNativeMenuBar(False)
-        self.menu_bar.setObjectName("menu_bar")
-        back_action = QAction("Назад", self)
-        back_action.triggered.connect(self.back_to_menu)
-        self.menu_bar.addAction(back_action)
-
-        self.formLayout = QtWidgets.QFormLayout(Form)
-        self.formLayout.setObjectName("formLayout")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        #self.verticalLayout_2.addWidget(self.menu_bar)
-        self.label_3 = QtWidgets.QLabel(parent=Form)
-        self.label_3.setObjectName("label_3")
-        self.verticalLayout_2.addWidget(self.label_3)
-        self.listWidget = QtWidgets.QListWidget(parent=Form)
-        self.listWidget.setObjectName("listWidget")
-        self.verticalLayout_2.addWidget(self.listWidget)
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.ItemRole.SpanningRole, self.menu_bar)
-        self.formLayout.setLayout(1, QtWidgets.QFormLayout.ItemRole.LabelRole, self.verticalLayout_2)
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.verticalLayout = QtWidgets.QVBoxLayout()
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.label_2 = QtWidgets.QLabel(parent=Form)
-        self.label_2.setObjectName("label_2")
-        self.verticalLayout.addWidget(self.label_2)
-        self.textBrowser_2 = QtWidgets.QTextBrowser(parent=Form)
-        self.textBrowser_2.setObjectName("textBrowser_2")
-        self.verticalLayout.addWidget(self.textBrowser_2)
-        self.verticalLayout_3.addLayout(self.verticalLayout)
-        
-        self.label = QtWidgets.QLabel(parent=Form)
-        self.label.setMinimumSize(QtCore.QSize(0, 100))
-        self.label.setText("")
-        self.label.setObjectName("label")
-        self.label.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.label.setWordWrap(True)
-        scroll = QtWidgets.QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setWidget(self.label)
-        self.verticalLayout_3.addWidget(scroll)
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.lineEdit = QtWidgets.QLineEdit(parent=Form)
-        self.lineEdit.setObjectName("lineEdit")
-        self.horizontalLayout.addWidget(self.lineEdit)
-        self.pushButton = QtWidgets.QPushButton(parent=Form)
-        self.pushButton.setObjectName("pushButton")
-        self.horizontalLayout.addWidget(self.pushButton)
-        self.verticalLayout_3.addLayout(self.horizontalLayout)
-        self.textBrowser = QtWidgets.QTextBrowser(parent=Form)
-        self.textBrowser.setObjectName("textBrowser")
-        self.verticalLayout_3.addWidget(self.textBrowser)
-        self.formLayout.setLayout(1, QtWidgets.QFormLayout.ItemRole.FieldRole, self.verticalLayout_3)
-
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
-
-    def retranslateUi(self, Form):
-        _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Решение задач"))
-        self.label_3.setText(_translate("Form", "Список задач"))
-        self.label_2.setText(_translate("Form", "Условие задачи"))
-        self.lineEdit.setPlaceholderText(_translate("Form", "Ответ"))
-        self.pushButton.setText(_translate("Form", "Проверить"))
+            self.textBrowser.append(f"[{datetime.now().strftime("%H:%M")}]: Задача '{self.curr_task["name"]}' дан неправильный ответ. Ответ: {self.lineEdit.text()}")

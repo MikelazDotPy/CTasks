@@ -208,7 +208,7 @@ constraints = [
 def _solve(small_decks, conds, conds_sum, model_conds_sum, set_size):
     deck = list(chain.from_iterable(small_decks))
 
-    if perm(set_size + len(small_decks) - 1, len(small_decks) - 1) < comb(len(deck), set_size):
+    if perm(set_size + len(small_decks) - 1, len(small_decks) - 1) < comb(len(deck), set_size)*10:
         constraints = [
             [i for i, y in enumerate(small_decks) if x[0](y[0])]
             for x in conds
@@ -229,7 +229,6 @@ def _solve(small_decks, conds, conds_sum, model_conds_sum, set_size):
         for j in range(len(conds)):
             op, r = conds[j][-2:]
             model.Add(op_dict[op](sum(x[i] for i in constraints[j]), r))
-    
         solver.Solve(model, solution_counter)
 
         return solution_counter.ans

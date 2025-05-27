@@ -1,55 +1,47 @@
 
 import os
-import sys
 
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QPushButton, QLabel, QFrame, QSizePolicy, QStyleFactory,
                              QMessageBox, QScrollArea, QMenuBar)
 from markdown import markdown
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont, QAction, QIcon
+from PyQt6.QtGui import QFont, QAction, QIcon, QPixmap
 
 from task_solver import TaskSolver
-from tasks_creator import CardDeckEditor, WordEditor, NumberEditor
+from tasks_creator import CardDeckEditor, WordEditor, NumberEditor, PrototypeCreator, PrototypeTaskCreator
+from ui import resource_path
 
 
-def resource_path(relative_path):
-    if hasattr(sys, '_MEIPASS'):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
-
-
-def fix_gtk_settings():
-    os.environ['GSETTINGS_BACKEND'] = 'memory'
-    os.environ['GDK_BACKEND'] = 'x11'
+TASK_TYPES = ["Колода карт", "Слова", "Наборы цифр", "Другие задачи", "Создать прототип"]
+TASK_DICT = {
+    TASK_TYPES[0]: CardDeckEditor, TASK_TYPES[1]: WordEditor, TASK_TYPES[2]: NumberEditor,
+    TASK_TYPES[3]: PrototypeTaskCreator, TASK_TYPES[4]: PrototypeCreator
+}
 
 
 class TaskCreationWindow(QWidget):
     def __init__(self, parent: QMainWindow=None):
         super().__init__()
-        self.parent_window = parent  # Сохраняем ссылку на родительское окно
+        self.parent_window = parent
         self.setMinimumSize(400, 300)
         self._create_menu_bar()
         self.setWindowTitle(parent.windowTitle())
 
         
-        # Главный layout
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
 
-        # Заголовок
         title = QLabel("Редактор задач")
         title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
 
-        # Горизонтальная линия
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
         line.setFrameShadow(QFrame.Shadow.Sunken)
         layout.addWidget(line)
 
-        # Scroll Area для списка кнопок
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_container = QWidget()
@@ -57,20 +49,13 @@ class TaskCreationWindow(QWidget):
         scroll_layout.setSpacing(15)
         scroll_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Список типов задач
-        task_types = [
-            "Колода карт",
-            "Слова",
-            "Наборы цифр",
-        ]
 
-        # Создаем кнопки из списка
-        for task_name in task_types:
+        for task_name in TASK_TYPES:
             btn = QPushButton(task_name)
             btn.setFont(QFont("Arial", 12))
             btn.setSizePolicy(QSizePolicy.Policy.Expanding, 
                             QSizePolicy.Policy.Expanding)
-            btn.setMinimumHeight(60)  # Фиксированная высота для единообразия
+            btn.setMinimumHeight(60)
             btn.clicked.connect(lambda checked, name=task_name: self.on_task_type_clicked(name))
             scroll_layout.addWidget(btn)
 
@@ -78,12 +63,7 @@ class TaskCreationWindow(QWidget):
         layout.addWidget(scroll_area, stretch=1)
 
     def on_task_type_clicked(self, task_name):
-        if task_name == "Колода карт":
-            self.editor = CardDeckEditor(self)  # Создаем экземпляр редактора
-        elif task_name == "Слова":
-            self.editor = WordEditor(self)  # Создаем экземпляр редактора
-        elif task_name == "Наборы цифр":
-            self.editor = NumberEditor(self)
+        self.editor = TASK_DICT[task_name](self)
         self.editor.show()
         self.hide()
 
@@ -103,29 +83,25 @@ class TaskCreationWindow(QWidget):
 class TaskSolveWindow(QWidget):
     def __init__(self, parent: QMainWindow=None):
         super().__init__()
-        self.parent_window = parent  # Сохраняем ссылку на родительское окно
+        self.parent_window = parent
         self.setMinimumSize(400, 300)
         self._create_menu_bar()
         self.setWindowTitle(parent.windowTitle())
 
         
-        # Главный layout
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
 
-        # Заголовок
         title = QLabel("Выберите тип задач")
         title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
 
-        # Горизонтальная линия
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
         line.setFrameShadow(QFrame.Shadow.Sunken)
         layout.addWidget(line)
 
-        # Scroll Area для списка кнопок
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_container = QWidget()
@@ -133,20 +109,12 @@ class TaskSolveWindow(QWidget):
         scroll_layout.setSpacing(15)
         scroll_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Список типов задач
-        task_types = [
-            "Колода карт",
-            "Слова",
-            "Наборы цифр",
-        ]
-
-        # Создаем кнопки из списка
-        for task_name in task_types:
+        for task_name in TASK_TYPES[:3]:
             btn = QPushButton(task_name)
             btn.setFont(QFont("Arial", 12))
             btn.setSizePolicy(QSizePolicy.Policy.Expanding, 
                             QSizePolicy.Policy.Expanding)
-            btn.setMinimumHeight(60)  # Фиксированная высота для единообразия
+            btn.setMinimumHeight(60)
             btn.clicked.connect(lambda checked, name=task_name: self.on_task_type_clicked(name))
             scroll_layout.addWidget(btn)
 
@@ -155,13 +123,13 @@ class TaskSolveWindow(QWidget):
 
     def on_task_type_clicked(self, task_name):
         if task_name == "Колода карт":
-            self.task_solver = TaskSolver(self, "card")  # Создаем экземпляр редактор
+            self.task_solver = TaskSolver(self, "card")
         elif task_name == "Слова":
-            self.task_solver = TaskSolver(self, "word")  # Создаем экземпляр редактора
+            self.task_solver = TaskSolver(self, "word")
         elif task_name == "Наборы цифр":
-            self.task_solver = TaskSolver(self, "num")  # Создаем экземпляр редактора
+            self.task_solver = TaskSolver(self, "num")
 
-        self.task_solver.show()  # Показываем окно редактора
+        self.task_solver.show()
         self.hide()
 
     def _create_menu_bar(self):
@@ -183,34 +151,28 @@ class MainMenu(QMainWindow):
         self.setWindowTitle("CTasks")
         self.setMinimumSize(400, 300)
         
-        # Создаем главное меню
         self._create_menu_bar()
         
-        # Главный контейнер
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
         layout.setContentsMargins(20, 20, 20, 20)
         
-        # Заголовок
         title = QLabel("Меню")
         title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
         
-        # Горизонтальная линия
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
         line.setFrameShadow(QFrame.Shadow.Sunken)
         layout.addWidget(line)
         
-        # Контейнер для кнопок
         button_container = QWidget()
         button_layout = QVBoxLayout(button_container)
         button_layout.setSpacing(15)
         button_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Кнопка "Решение задач"
         btn_solve = QPushButton("Решение задач")
         btn_solve.setFont(QFont("Arial", 12))
         btn_solve.setSizePolicy(QSizePolicy.Policy.Expanding, 
@@ -218,7 +180,6 @@ class MainMenu(QMainWindow):
         btn_solve.clicked.connect(self.on_solve_clicked)
         button_layout.addWidget(btn_solve)
 
-        # Кнопка "Редактор задач"
         btn_create = QPushButton("Редактор задач")
         btn_create.setFont(QFont("Arial", 12))
         btn_create.setSizePolicy(QSizePolicy.Policy.Expanding, 
@@ -226,35 +187,31 @@ class MainMenu(QMainWindow):
         btn_create.clicked.connect(self.on_create_clicked)
         button_layout.addWidget(btn_create)
 
-        # Добавляем контейнер с кнопками
         layout.addWidget(button_container, stretch=1)
 
-        # Линия внизу
         line_bottom = QFrame()
         line_bottom.setFrameShape(QFrame.Shape.HLine)
         line_bottom.setFrameShadow(QFrame.Shadow.Sunken)
         layout.addWidget(line_bottom)
         
-        # Подпись об авторстве
         author_label = QLabel("Авторы: Сабалиров М.З., Беннер В.А.")
         author_label.setFont(QFont("Arial", 9))
         author_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         layout.addWidget(author_label)
-
 
     def _create_menu_bar(self):
         menubar = self.menuBar()
         menubar.setNativeMenuBar(False)
         help_menu = menubar.addMenu("Справка")
         about_action = QAction("О программе", self)
-        about_action.triggered.connect(self.show_about)
+        about_action.triggered.connect(self.show_about1)
         help_menu.addAction(about_action)
         about_action = QAction("Общие сведения", self)
         about_action.triggered.connect(self.show_about2)
         help_menu.addAction(about_action)
     
     def on_solve_clicked(self):
-        self.task_window = TaskSolveWindow(self)
+        self.task_window = TaskSolver(self)
         self.hide()
         self.task_window.show()
     
@@ -306,7 +263,7 @@ class MainMenu(QMainWindow):
         msg_box.setStyleSheet("QLabel{font-size: 18px; ; min-width: 550px;}")
         msg_box.exec()
 
-    def show_about(self):
+    def show_about1(self):
         md = """**Название тренажера**: CTasks  
 **Версия**: 1.1  
 **Разработчики**: Сабалиров М.З., Беннер В.А.  
@@ -329,9 +286,11 @@ class MainMenu(QMainWindow):
 
 
 if __name__ == "__main__":
-    fix_gtk_settings()
+    os.environ['GSETTINGS_BACKEND'] = 'memory'
+    os.environ['GDK_BACKEND'] = 'x11'
     app = QApplication([])
     app.setWindowIcon(QIcon(resource_path("ico.ico")))
+    
     app.setStyle(QStyleFactory.create("Fusion"))
     window = MainMenu()
     window.show()
