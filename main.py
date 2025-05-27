@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QMessageBox, QScrollArea, QMenuBar)
 from markdown import markdown
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont, QAction, QIcon, QPixmap
+from PyQt6.QtGui import QFont, QAction, QIcon
 
 from task_solver import TaskSolver
 from tasks_creator import CardDeckEditor, WordEditor, NumberEditor, PrototypeCreator, PrototypeTaskCreator
@@ -80,70 +80,6 @@ class TaskCreationWindow(QWidget):
         self.close()
 
 
-class TaskSolveWindow(QWidget):
-    def __init__(self, parent: QMainWindow=None):
-        super().__init__()
-        self.parent_window = parent
-        self.setMinimumSize(400, 300)
-        self._create_menu_bar()
-        self.setWindowTitle(parent.windowTitle())
-
-        
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
-
-        title = QLabel("Выберите тип задач")
-        title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title)
-
-        line = QFrame()
-        line.setFrameShape(QFrame.Shape.HLine)
-        line.setFrameShadow(QFrame.Shadow.Sunken)
-        layout.addWidget(line)
-
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_container = QWidget()
-        scroll_layout = QVBoxLayout(scroll_container)
-        scroll_layout.setSpacing(15)
-        scroll_layout.setContentsMargins(0, 0, 0, 0)
-
-        for task_name in TASK_TYPES[:3]:
-            btn = QPushButton(task_name)
-            btn.setFont(QFont("Arial", 12))
-            btn.setSizePolicy(QSizePolicy.Policy.Expanding, 
-                            QSizePolicy.Policy.Expanding)
-            btn.setMinimumHeight(60)
-            btn.clicked.connect(lambda checked, name=task_name: self.on_task_type_clicked(name))
-            scroll_layout.addWidget(btn)
-
-        scroll_area.setWidget(scroll_container)
-        layout.addWidget(scroll_area, stretch=1)
-
-    def on_task_type_clicked(self, task_name):
-        if task_name == "Колода карт":
-            self.task_solver = TaskSolver(self, "card")
-        elif task_name == "Слова":
-            self.task_solver = TaskSolver(self, "word")
-        elif task_name == "Наборы цифр":
-            self.task_solver = TaskSolver(self, "num")
-
-        self.task_solver.show()
-        self.hide()
-
-    def _create_menu_bar(self):
-        menubar = QMenuBar(self)
-        back_action = QAction("Назад", self)
-        back_action.triggered.connect(self.back_to_menu)
-        menubar.addAction(back_action)
-        
-
-    def back_to_menu(self):
-        if self.parent_window:
-            self.parent_window.show()
-        self.close()
-
 
 class MainMenu(QMainWindow):
     def __init__(self):
@@ -195,7 +131,7 @@ class MainMenu(QMainWindow):
         layout.addWidget(line_bottom)
         
         author_label = QLabel("Авторы: Сабалиров М.З., Беннер В.А.")
-        author_label.setFont(QFont("Arial", 9))
+        author_label.setFont(QFont("Arial", 10))
         author_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         layout.addWidget(author_label)
 
@@ -286,11 +222,9 @@ class MainMenu(QMainWindow):
 
 
 if __name__ == "__main__":
-    os.environ['GSETTINGS_BACKEND'] = 'memory'
     os.environ['GDK_BACKEND'] = 'x11'
     app = QApplication([])
-    app.setWindowIcon(QIcon(resource_path("ico.ico")))
-    
+    app.setWindowIcon(QIcon(resource_path(os.path.join("ui", "ico.ico"))))
     app.setStyle(QStyleFactory.create("Fusion"))
     window = MainMenu()
     window.show()

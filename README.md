@@ -27,6 +27,6 @@ CTasks позволяет как решать задания по комбина
 
 ## Сборка приложения из исходников
 1. Установите pyinstaller: `pip install pyinstaller`
-2. Начните сборку: `pyinstaller --add-data "solvers:solvers" --add-data "ui:ui" --add-data "prototypes:prototypes" --add-data "tasks:tasks" --add-data "user:user" --add-data "task_solver.py:." --add-data "tasks_creator.py:." --add-data "ico.ico:." --collect-all ortools --collect-all PyQt6 --icon=ico.ico  --name=CTasks --windowed --onedir main.py`
+2. Начните сборку: `pyinstaller --add-data "solvers:solvers" --add-data "ui:ui" --add-data "prototypes:prototypes" --add-data "tasks:tasks" --add-data "user:user" --add-data "task_solver.py:." --add-data "tasks_creator.py:." --collect-all ortools --collect-all PyQt6 --icon=ui/ico.ico  --name=CTasks --windowed --onedir main.py`
 3. После завершения сборки передейдите в директорию `dist/CTasks`
 4. Запустите исполняемый файл `CTasks` 
