@@ -167,8 +167,9 @@ class TaskSolver(TasksSolverUI):
             self.append_to_json_list(self.user_data_path, self.curr_task["name"])
             if self.curr_task["name"] not in self.user_data:
                 self.user_data.append(self.curr_task["name"])
-            it = self.listWidget_2.findItems(self.curr_task["name"], Qt.MatchFlag.MatchExactly)[0]
-            it.setBackground(QColor(GOOD_COLOR))
+            it = self.listWidget_2.findItems(self.curr_task["name"], Qt.MatchFlag.MatchExactly)
+            if it:
+                it[0].setBackground(QColor(GOOD_COLOR))
             self.textBrowser.append(f"[{datetime.now().strftime("%H:%M")}]: Задача '{self.curr_task["name"]}' решена. Ответ: {self.lineEdit.text()}")
         else:
             dlg = CustomDialog("Неверный ответ!", title="Неудача!", parent=self)
