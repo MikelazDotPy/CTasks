@@ -155,6 +155,9 @@ def solve(task):
 
         set_size -= 1
         base_sum += card_to_num[card]
+    
+    if set_size < 0:
+        return 0
 
     sp = list(filter(lambda x: "Сумма очков " in x, task["conditions"]))
     if sp:
@@ -230,7 +233,6 @@ def _solve(small_decks, conds, conds_sum, model_conds_sum, set_size):
             op, r = conds[j][-2:]
             model.Add(op_dict[op](sum(x[i] for i in constraints[j]), r))
         solver.Solve(model, solution_counter)
-
         return solution_counter.ans
 
     return brutforce(set_size, deck, conds, conds_sum)

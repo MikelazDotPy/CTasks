@@ -80,7 +80,7 @@ def _solve(n, g, s, conds: Conditions = Conditions(), g_cmp: tuple = (),
                             s_cmp: tuple = (),
                             g_s_cmp: tuple = (), uniq=False):
     if n == 0:
-        return int(all(x(0) for x in g_cmp) and  all(x(0) for x in s_cmp))
+        return int(all(x(0) for x in g_cmp) and all(x(0) for x in s_cmp))
     if n % 2 == 0 and conds.alternation and conds.palindrome:
         return 0
     if conds.alternation_g_s and conds.alternation_s_g:

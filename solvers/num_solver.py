@@ -236,7 +236,7 @@ def solve(task):
     if global_conds.uniq and (end - start + 1) < set_size:
         return 0
     
-    if global_conds.great and global_conds.less:
+    if global_conds.great and global_conds.less and set_size != 0:
         return 0
     
     if start > 0:

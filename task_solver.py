@@ -37,6 +37,7 @@ class TaskSolver(TasksSolverUI):
         self._load_prototypes_name()
         self.listWidget.itemDoubleClicked.connect(self._load_tasks_name)
         self.listWidget_2.itemDoubleClicked.connect(self._load_task)
+        self.pushButton.clicked.connect(self._check_sol)
 
     def _load_prototypes_name(self):
         self.protos = []

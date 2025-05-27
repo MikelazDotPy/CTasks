@@ -1,4 +1,5 @@
 
+from sys import platform
 import os
 
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
@@ -228,7 +229,10 @@ class MainMenu(QMainWindow):
 if __name__ == "__main__":
     os.environ['GDK_BACKEND'] = 'x11'
     app = QApplication([])
-    app.setWindowIcon(QIcon(resource_path(os.path.join("ui", "ico.ico"))))
+    if platform == "darwin":
+        app.setWindowIcon(QIcon(resource_path(os.path.join("ui", "ico.icns"))))
+    else:
+        app.setWindowIcon(QIcon(resource_path(os.path.join("ui", "ico.ico"))))
     app.setStyle(QStyleFactory.create("Fusion"))
     window = MainMenu()
     window.show()
