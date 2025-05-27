@@ -25,22 +25,21 @@ class TaskCreationWindow(QWidget):
         super().__init__()
         self.parent_window = parent
         self.setMinimumSize(400, 300)
-        self._create_menu_bar()
         self.setWindowTitle(parent.windowTitle())
-
-        
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
+        self.layout3 = QVBoxLayout(self)
+        self.layout3.setContentsMargins(0, 0, 0, 0)
+        self.layout2 = QVBoxLayout(self)
+        self.layout2.setContentsMargins(20, 20, 20, 20)
 
         title = QLabel("Редактор задач")
         title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title)
+        self.layout2.addWidget(title)
 
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
         line.setFrameShadow(QFrame.Shadow.Sunken)
-        layout.addWidget(line)
+        self.layout2.addWidget(line)
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
@@ -60,7 +59,10 @@ class TaskCreationWindow(QWidget):
             scroll_layout.addWidget(btn)
 
         scroll_area.setWidget(scroll_container)
-        layout.addWidget(scroll_area, stretch=1)
+        self.layout2.addWidget(scroll_area, stretch=1)
+        self.layout3.insertLayout(0, self.layout2)
+        self._create_menu_bar()
+
 
     def on_task_type_clicked(self, task_name):
         self.editor = TASK_DICT[task_name](self)
@@ -72,6 +74,7 @@ class TaskCreationWindow(QWidget):
         back_action = QAction("Назад", self)
         back_action.triggered.connect(self.back_to_menu)
         menubar.addAction(back_action)
+        self.layout3.insertWidget(0, menubar)
         
 
     def back_to_menu(self):

@@ -30,16 +30,16 @@ class ORToolsSolutions(cp_model.CpSolverSolutionCallback):
         self.ans = 0
     
     def cless(self, solution):
-            if len(solution) == 0:
-                return comb(self.mx, self.set_size)
-            items = list(solution.items())
-            items.sort(key=lambda x: x[0])
-            bounds = [(items[i + 1][0] - items[i][0] - 1, items[i][1] - items[i + 1][1] - 1) for i in range(len(items) - 1)]
-            if 0 not in solution:
-                bounds = [(items[0][0], self.end - items[0][1])] + bounds
-            if self.set_size - 1 not in solution:
-                bounds += [(self.set_size - items[-1][0] - 1, items[-1][1] - self.start)]
-            return prod(comb(ot[1], ot[0]) for ot in bounds)
+        if len(solution) == 0:
+            return comb(self.mx, self.set_size)
+        items = list(solution.items())
+        items.sort(key=lambda x: x[0])
+        bounds = [(items[i + 1][0] - items[i][0] - 1, items[i][1] - items[i + 1][1] - 1) for i in range(len(items) - 1)]
+        if 0 not in solution:
+            bounds = [(items[0][0], self.end - items[0][1])] + bounds
+        if self.set_size - 1 not in solution:
+            bounds += [(self.set_size - items[-1][0] - 1, items[-1][1] - self.start)]
+        return prod(comb(ot[1], ot[0]) for ot in bounds)
         
     def cgreat(self, solution):
         if len(solution) == 0:
