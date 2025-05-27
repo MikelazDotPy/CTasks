@@ -27,9 +27,10 @@ class TaskCreationWindow(QWidget):
         self.setMinimumSize(400, 300)
         self.setWindowTitle(parent.windowTitle())
         self.layout3 = QVBoxLayout(self)
-        self.layout3.setContentsMargins(0, 0, 0, 0)
-        self.layout2 = QVBoxLayout(self)
+        self.layout3.setContentsMargins(9, 9, 9, 9)
+        self.layout2 = QVBoxLayout()
         self.layout2.setContentsMargins(20, 20, 20, 20)
+        self.layout3.addLayout(self.layout2, 1)
 
         title = QLabel("Редактор задач")
         title.setFont(QFont("Arial", 16, QFont.Weight.Bold))
@@ -60,7 +61,6 @@ class TaskCreationWindow(QWidget):
 
         scroll_area.setWidget(scroll_container)
         self.layout2.addWidget(scroll_area, stretch=1)
-        self.layout3.insertLayout(0, self.layout2)
         self._create_menu_bar()
 
 
@@ -71,6 +71,7 @@ class TaskCreationWindow(QWidget):
 
     def _create_menu_bar(self):
         menubar = QMenuBar(self)
+        menubar.setNativeMenuBar(False)
         back_action = QAction("Назад", self)
         back_action.triggered.connect(self.back_to_menu)
         menubar.addAction(back_action)
@@ -89,7 +90,7 @@ class MainMenu(QMainWindow):
         super().__init__()
         self.setWindowTitle("CTasks")
         self.setMinimumSize(400, 300)
-        
+
         self._create_menu_bar()
         
         central_widget = QWidget()

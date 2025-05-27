@@ -37,7 +37,7 @@ class TasksSolverUI(QWidget):
         Form.resize(1000, 600)
         self.mainLayout = QtWidgets.QVBoxLayout(Form)
         self.mainLayout.setObjectName("mainLayout")
-        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout.setContentsMargins(9, 9, 9, 9)
 
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
