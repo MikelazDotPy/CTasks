@@ -4,7 +4,7 @@ CTasks позволяет как решать задания по комбина
 Авторы: Сабалиров М.З, Беннер В.А.
 
 ## Быстрый старт (готовое приложение, без исходников)
-1. Откройте актуальный [релиз](https://github.com/MikelazDotPy/CTasks/releases/tag/v1.1)
+1. Откройте актуальный [релиз](https://github.com/MikelazDotPy/CTasks/releases/tag/v2.0)
 2. Нажмите на архив с **названием (вашей ОС)**:
     - Windows: `CTasksWindows.zip`
     - Linux: `CTasksLinux.zip`
