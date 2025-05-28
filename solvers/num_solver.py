@@ -31,6 +31,8 @@ class ORToolsSolutions(cp_model.CpSolverSolutionCallback):
     
     def cless(self, solution):
         if len(solution) == 0:
+            if self.conds.nonzero and self.set_size == 1:
+                return comb(self.mx - 1, self.set_size)
             return comb(self.mx, self.set_size)
         items = list(solution.items())
         items.sort(key=lambda x: x[0])
@@ -236,7 +238,7 @@ def solve(task):
     if global_conds.uniq and (end - start + 1) < set_size:
         return 0
     
-    if global_conds.great and global_conds.less and set_size != 0:
+    if global_conds.great and global_conds.less and set_size > 1:
         return 0
     
     if start > 0:
