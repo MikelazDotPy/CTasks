@@ -88,12 +88,13 @@ class ORToolsSolutions(cp_model.CpSolverSolutionCallback):
         items.sort(key=lambda x: x[0])
         bounds = [(items[i + 1][0] - items[i][0] - 1, items[i][1] - items[i + 1][1] + 1) for i in range(len(items) - 1)]
         if 0 not in solution:
-            bounds = [(items[0][0], self.end - items[0][1] + 1)] + bounds
+            bounds = [(items[0][0], items[0][1] - self.start + 1)] + bounds
         if self.set_size - 1 not in solution:
-            bounds += [(self.set_size - items[-1][0] - 1, items[-1][1] - self.start + 1)]
+            bounds += [(self.set_size - items[-1][0] - 1, self.end - items[-1][1] + 1)]
 
         if self.conds.nonzero:
-            return prod(comb(ot[1] + ot[0] - 1, ot[0]) for ot in bounds)
+            p = prod(comb(ot[1] + ot[0] - 1, ot[0]) for ot in bounds[1:])
+            return p*(comb(bounds[0][1] + bounds[0][0] - 1, bounds[0][0]) - comb(bounds[0][1] + bounds[0][0] - 2, bounds[0][0] - 1))
         return prod(comb(ot[1] + ot[0] - 1, ot[0]) for ot in bounds)
 
     def get_formula(self):
