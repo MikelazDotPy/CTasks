@@ -99,7 +99,7 @@ class ORToolsSolutions(cp_model.CpSolverSolutionCallback):
 
     def get_formula(self):
         if self.conds.ge and self.conds.le:
-            return lambda s: 1
+            return lambda s: 1 if len(s) != 0 else (self.mx - 1 if self.conds.nonzero else self.mx) 
 
         if self.conds.uniq:
             if self.conds.nonzero:
@@ -108,14 +108,14 @@ class ORToolsSolutions(cp_model.CpSolverSolutionCallback):
                 elif self.conds.great:
                     return self.cgreat
                 else:
-                    return lambda s: (self.mx-1)*perm(self.mx-1, self.happy_count - 1)
+                    return lambda s: (self.mx-len(s)-1)*perm(self.mx-len(s)-1, self.happy_count - 1)
             else:
                 if self.conds.less:
                     return self.cless
                 elif self.conds.great:
                     return self.cgreat
                 else:
-                    return lambda s: perm(self.mx, self.happy_count)
+                    return lambda s: perm(self.mx - len(s), self.happy_count)
         else:
             if self.conds.nonzero:
                 if self.conds.non_xx:
@@ -192,7 +192,7 @@ def solve(task):
     start, end = task["start"], task["end"]
     local_conds = []
     global_conds = Conditions(nonzero=task["nonzero"])
-    gcl = "Набор состоит из различных цифр,Соседние цифры набора различны,Цифры набора идут в возрастающем порядке,Цифры набора идут в неубывабщем порядке,Цифры набора идут в убывающем порядке,Цифры набора идут в невозрастающем порядке".split(",")
+    gcl = "Набор состоит из различных цифр,Соседние цифры набора различны,Цифры набора идут в возрастающем порядке,Цифры набора идут в неубывающем порядке,Цифры набора идут в убывающем порядке,Цифры набора идут в невозрастающем порядке".split(",")
     sad_vars = set()
 
     for cond in task["conditions"]:
@@ -216,14 +216,17 @@ def solve(task):
             case "Цифры набора идут в возрастающем порядке":
                 global_conds.great = True
                 global_conds.uniq = True
-            case "Цифры набора идут в неубывабщем порядке":
+            case "Цифры набора идут в неубывающем порядке":
                 global_conds.ge = True
             case "Цифры набора идут в убывающем порядке":
                 global_conds.less = True
                 global_conds.uniq = True
             case _:
                 global_conds.le = True
-    
+
+    if set_size == 0:
+        return 1
+
     if global_conds.le and (global_conds.non_xx or global_conds.uniq):
         global_conds.le = False
         global_conds.non_xx = False
