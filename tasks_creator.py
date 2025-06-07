@@ -2,10 +2,28 @@ import json
 import os
 
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QMessageBox
 
 from solvers import card_solver, word_solver, num_solver, prototype_solver
 from ui import CustomDialog, resource_path, WordEditorUI, CardDeckEditorUI, NumberEditorUI, PrototypeCreatorUI, PrototypeTaskCreatorUI
 
+
+def delete_from_json_list(item):
+    try:
+        with open(resource_path(os.path.join("user", "data.json")), 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        if not isinstance(data, list):
+            data = []
+        
+        if item not in data:
+            return
+        data.remove(item)
+        
+        with open(resource_path(os.path.join("user", "data.json")), 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return
 
 
 class PrototypeCreator(PrototypeCreatorUI):
@@ -74,6 +92,10 @@ class PrototypeCreator(PrototypeCreatorUI):
             dlg.exec()
             return
         task = {"name": self.lineEdit.text(), "code": self.plainTextEdit.toPlainText(), "desk": self.textEdit.toPlainText()}
+        if os.path.exists(resource_path(os.path.join("prototypes", task["name"] + ".json"))):
+            res = QMessageBox.question(self, "Подтверждение", "Прототип с таким названием уже существует, если вы его сохраните, то перезапишите старый. Сохранить?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            if res == QMessageBox.StandardButton.No:
+                return
         with open(resource_path(os.path.join("prototypes", task["name"] + ".json")), "w") as fp:
             json.dump(task , fp)
 
@@ -158,6 +180,13 @@ answer = main()"""
             dlg.exec()
             return
         task = {"name": self.lineEdit.text(), "code": self.plainTextEdit.toPlainText(), "task": self.textEdit.toPlainText(), "type": self.curr_proto["name"], "answer": ans[1]}
+        if os.path.exists(resource_path(os.path.join("tasks", task["name"] + ".json"))):
+            res = QMessageBox.question(self, "Подтверждение", "Задача с таким названием уже существует, если вы ее сохраните, то перезапишите старую. Сохранить?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            if res == QMessageBox.StandardButton.No:
+                return
+            else:
+                delete_from_json_list(task["name"])
+                
         with open(resource_path(os.path.join("tasks", task["name"] + ".json")), "w") as fp:
             json.dump(task , fp)
 
@@ -279,6 +308,12 @@ class WordEditor(WordEditorUI):
             task["alph"] = ""
         task["conditions"] = list(set(self.listWidget.item(i).text() for i in range(self.listWidget.count())))
         task["answer"] = word_solver.solve(task)
+        if os.path.exists(resource_path(os.path.join("tasks", task["name"] + ".json"))):
+            res = QMessageBox.question(self, "Подтверждение", "Задача с таким названием уже существует, если вы ее сохраните, то перезапишите старую. Сохранить?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            if res == QMessageBox.StandardButton.No:
+                return
+            else:
+                delete_from_json_list(task["name"])
         with open(resource_path(os.path.join("tasks", task["name"] + ".json")), "w") as fp:
             json.dump(task , fp)
 
@@ -417,6 +452,12 @@ class CardDeckEditor(CardDeckEditorUI):
         task = {"name": self.lineEdit.text(), "task":self.textEdit.toPlainText(), "type": "card", "deck": int(self.comboBox.currentText()), "set_size": int(self.lineEdit_2.text())}
         task["conditions"] = list(set(self.listWidget.item(i).text() for i in range(self.listWidget.count())))
         task["answer"] = card_solver.solve(task)
+        if os.path.exists(resource_path(os.path.join("tasks", task["name"] + ".json"))):
+            res = QMessageBox.question(self, "Подтверждение", "Задача с таким названием уже существует, если вы ее сохраните, то перезапишите старую. Сохранить?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            if res == QMessageBox.StandardButton.No:
+                return
+            else:
+                delete_from_json_list(task["name"])
         with open(resource_path(os.path.join("tasks", task["name"] + ".json")), "w") as fp:
             json.dump(task , fp)
         self._load_tasks_name()
@@ -549,6 +590,12 @@ class NumberEditor(NumberEditorUI):
                 "start": int(self.comboBox.currentText()), "end": int(self.comboBox_3.currentText())}
         task["conditions"] = list(set(self.listWidget.item(i).text() for i in range(self.listWidget.count())))
         task["answer"] = num_solver.solve(task)
+        if os.path.exists(resource_path(os.path.join("tasks", task["name"] + ".json"))):
+            res = QMessageBox.question(self, "Подтверждение", "Задача с таким названием уже существует, если вы ее сохраните, то перезапишите старую. Сохранить?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+            if res == QMessageBox.StandardButton.No:
+                return
+            else:
+                delete_from_json_list(task["name"])
         with open(resource_path(os.path.join("tasks", task["name"] + ".json")), "w") as fp:
             json.dump(task , fp)
         self._load_tasks_name()

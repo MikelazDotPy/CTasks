@@ -13,9 +13,6 @@ from PyQt6.QtGui import QPainter, QColor, QFont, QTextCharFormat, QPalette, QSyn
 from ui import resource_path
 
 
-
-
-
 class EditorUI(QWidget):
     def __init__(self, parent):
         super().__init__()

@@ -3,10 +3,11 @@ import re
 
 def check_code(code):
     try:
-        exec(code)
-        if not locals().get("main", False):
+        locs = {}
+        exec(code, {}, locs)
+        if not locs.get("main", False):
             return "Отсуствует функция main!"
-        if not locals().get("get_task", False):
+        if not locs.get("get_task", False):
             return "Отсуствует функция get_task!"
         return "OK"
     except Exception as e:
